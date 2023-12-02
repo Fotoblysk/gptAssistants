@@ -32,23 +32,23 @@ def update_processed_status(file_name, status):
 def process_file(file_path):
     # Your custom function to process the file
     print(f"Processing file: {file_path}")
-    # try:
-    # backup old
-    copyfile(file_path, os.path.join(REC_LOCATION_BASE, file_path.split("/")[-1]))
+    try:
+        # backup old
+        copyfile(file_path, os.path.join(REC_LOCATION_BASE, file_path.split("/")[-1]))
 
-    run_organiser(ConversationSources.saved_recording(
-        file_path,
-        bck_path=f'{TRANS_LOCATION_BASE}/{file_path.split("/")[-1]}.md'))
+        run_organiser(ConversationSources.saved_recording(
+            file_path,
+            bck_path=f'{TRANS_LOCATION_BASE}/{file_path.split("/")[-1]}.md'))
 
-    run_noter(ConversationSources.saved_transcription(f'{TRANS_LOCATION_BASE}/{file_path.split("/")[-1]}.md'),
-              NOTER_LOCATION,
-              f'{TRANS_LOCATION_BASE}/{file_path.split("/")[-1]}.md')
+        run_noter(ConversationSources.saved_transcription(f'{TRANS_LOCATION_BASE}/{file_path.split("/")[-1]}.md'),
+                  NOTER_LOCATION,
+                  f'{TRANS_LOCATION_BASE}/{file_path.split("/")[-1]}.md')
 
-    # Update the status to True after processing False if processing failed
-    update_processed_status(file_path, True)
-    # except Exception as e:
-    #    print(f'Failed to process file {file_path}, e: {e}')
-    update_processed_status(file_path, False)
+        # Update the status to True after processing False if processing failed
+        update_processed_status(file_path, True)
+    except Exception as e:
+        print(f'Failed to process file {file_path}, e: {e}')
+        update_processed_status(file_path, False)
 
 
 def monitor_dropbox_dir():
@@ -74,6 +74,7 @@ def execute_tasks_from_queue():
         file_path = task_queue.get()
         print(f'working on task {file_path}')
         process_file(file_path)
+        print(f'done working on task {file_path}')
         task_queue.task_done()
 
 
