@@ -241,7 +241,7 @@ def run_organiser(conversation_source):
 def save_note(note, notes_path, parent_path):
     with open(f'{notes_path}/{note["fileName"]}', 'w') as f:
         f.write(note["content"])
-        f.write(f"\n [[{parent_path}|Source Transcription]]")
+        f.write(f"\n\n [[{parent_path}|Source Transcription]]")
 
 
 def noter_final_generator(notes_path, parent_path):
