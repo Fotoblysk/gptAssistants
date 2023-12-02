@@ -1,6 +1,26 @@
 import datetime
-import json
 from enum import Enum
+
+
+class FunctionNames(Enum):
+    get_todos = 'get_todos'
+    add_todos = 'add_todos'
+    update_todos = 'update_todos'
+    remove_todos = 'remove_todos'
+
+    get_events = 'get_events'
+    add_events = 'add_events'
+    update_events = 'update_events'
+    remove_events = 'remove_events'
+
+    get_obsidian_notes_number = 'get_obsidian_notes_number'
+    search_obsidian_notes_for_string = 'search_obsidian_notes_for_string'
+    get_linked_obsidian_notes = 'get_linked_obsidian_notes'
+    get_obsidian_notes = 'get_obsidian_notes'
+    get_200_random_obsidian_notes = 'get_200_random_obsidian_notes'
+
+
+import json
 
 picker_message_base_old = f"Today is {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}. You are a helpful assistant and you should behave as one with general knowledge and complex reasoning, "
 "You must always follow strict rules for your messages format. If think my input doesn't describe tasks anough you should still try to do your job."
@@ -35,31 +55,33 @@ picker_message_base_old_old = ("You are a helpful assistant and you "
                                "add, update, remove, complete them only using add_todos function, remove_todos, get_todos"
                                " and specified strict format")
 
-noter_message_base = ("You will get an input a text, then divide the text I will provide into as much as you can obsydian markdown atomic notes, "
-                      "so the notes exhaust the topic, "
-                      "using data from the text and your general knowledge. You should output data in json format useing the following schema: "
-                      '`{"notes": [{fileName: "some file name beeing the title at the same time.md", "content": "NOTE_CONTENT"}], '
-                      '"summaryMessage": "Message summarizing what you generated"}` .'
-                      "The generated notes will be added to Obsidian vault."
-                      "Each of the notes content (NOTE_CONTENT) should be capturing a single, clear narrative idea or concept related to the topic being researched, "
-                      "adhering to the principles of Andy Matuschak's note-taking methodology. "
-                      "Each atomic note must include sufficient detail and information relevant to the topic "
-                      "and meet the following criteria: information relevance, reliability, clear structure, "
-                      "detail, documentation, updating, accessibility, integration with other information, "
-                      "accuracy, and critical evaluation of information. Pleas link notes with "
-                      "[[linked_fileName.md|custom display text]] and make sure that every generated "
-                      "has at least one link to something. The structure of each atomic NOTE_CONTENT "
-                      "should have 2 parts:"
-                      "The first part 'IDEEA,' must be a narrative text about the main idea or concept, "
-                      "and the second part, 'Details,' should contain all the details of the main idea or concept. "
-                      "The notes may contain subheadings, bullet points, or enumeration of details if necessary, "
-                      "but each note must not deviate from capturing a single, "
-                      "clear narrative idea and must avoid including multiple ideas or tangential information. "
-                      "Finally, based on the content of each note, suggest a relevant title for each atomic note "
-                      "created, with a maximum length of 70 characters and no symbols or colons. "
-                      "After title also place relevant links if you couldn't find place for them in the text. "
-                      "When you create some link if you haven't already provide note of that file name make sure "
-                      "to generate linked note.")
+noter_message_base = (
+    "You will get an input a text, then divide the text I will provide into as much as you can obsydian markdown atomic notes, "
+    "so the notes exhaust the topic, "
+    "using data from the text and your general knowledge. You should output data in json format useing the following schema: "
+    '`{"notes": [{fileName: "some file name beeing the title at the same time.md", "content": "NOTE_CONTENT"}], '
+    '"summaryMessage": "Message summarizing what you generated"}` .'
+    "The generated notes will be added to Obsidian vault. You can get existing obsidian notes from the vault with commands:"
+    f"`{FunctionNames.get_obsidian_notes_number.value}`, `{FunctionNames.get_200_random_obsidian_notes.value}`, `{FunctionNames.search_obsidian_notes_for_string.value}`."
+    "Each of the notes content (NOTE_CONTENT) should be capturing a single, clear narrative idea or concept related to the topic being researched, "
+    "adhering to the principles of Andy Matuschak's note-taking methodology. "
+    "Each atomic note must include sufficient detail and information relevant to the topic "
+    "and meet the following criteria: information relevance, reliability, clear structure, "
+    "detail, documentation, updating, accessibility, integration with other information, "
+    "accuracy, and critical evaluation of information. Pleas link notes with "
+    "[[linked_fileName.md|custom display text]] and make sure that every generated "
+    "has at least one link to something. The structure of each atomic NOTE_CONTENT "
+    "should have 2 parts:"
+    "The first part 'IDEEA,' must be a narrative text about the main idea or concept, "
+    "and the second part, 'Details,' should contain all the details of the main idea or concept. "
+    "The notes may contain subheadings, bullet points, or enumeration of details if necessary, "
+    "but each note must not deviate from capturing a single, "
+    "clear narrative idea and must avoid including multiple ideas or tangential information. "
+    "Finally, based on the content of each note, suggest a relevant title for each atomic note "
+    "created, with a maximum length of 70 characters and no symbols or colons. "
+    "After title also place relevant links if you couldn't find place for them in the text. "
+    "When you create some link if you haven't already provide note of that file name make sure "
+    "to generate linked note.")
 
 picker_message_base = ("You are a helpful assistant and you "
                        "should behave as one with general knowledge and complex reasoning, "
@@ -181,24 +203,6 @@ def initial_conversation_for_picker_generator_old(tasks):
          },
     ]
     return conversation, SYSTEM_MESSAGE
-
-
-class FunctionNames(Enum):
-    get_todos = 'get_todos'
-    add_todos = 'add_todos'
-    update_todos = 'update_todos'
-    remove_todos = 'remove_todos'
-
-    get_events = 'get_events'
-    add_events = 'add_events'
-    update_events = 'update_events'
-    remove_events = 'remove_events'
-
-    get_obsidian_notes_number = 'get_obsidian_notes_number'
-    search_obsidian_notes_for_string = 'search_obsidian_notes_for_string'
-    get_linked_obsidian_notes = 'get_linked_obsidian_notes'
-    get_obsidian_notes = 'get_obsidian_notes'
-    get_200_random_obsidian_notes = 'get_200_random_obsidian_notes'
 
 
 def get_organiser_tools():
@@ -424,8 +428,21 @@ def get_noter_tools():
                 "properties": {
                 }
             },
-        }}
-
+        }},
+        {"type": "function", "function": {
+            "name": FunctionNames.search_obsidian_notes_for_string.value,
+            "description": f"Search obsidian vault for notes containing string",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "search_phrase": {
+                        "type": "string",
+                        "description": "Text to search for in obsidian notes"
+                    }
+                }
+            }
+        },
+         }
     ]
     return [
         *obsidian_tools,

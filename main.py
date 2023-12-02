@@ -1,5 +1,6 @@
 import os
 import random
+import subprocess
 import time
 from pprint import pprint
 
@@ -75,6 +76,10 @@ def execute_function_call(tool_call, obsidian_path=''):
     elif tool_call.function.name == FunctionNames.get_obsidian_notes_number.value:
         return str(get_obsidian_notes_n(obsidian_path))
 
+    elif tool_call.function.name == FunctionNames.search_obsidian_notes_for_string.value:
+        return json.dumps(
+            search_obsidian_notes_for_string(obsidian_path, tool_call.function.arguments)["search_phrase"])
+
     else:
         results = f"Error: function {tool_call.function.name} does not exist"
     return results
@@ -84,6 +89,40 @@ def get_obsidian_notes_n(obsidian_path):
     entries = os.listdir(obsidian_path)
     files = [entry for entry in entries if os.path.isfile(os.path.join(obsidian_path, entry))]
     return len(files)
+
+
+def grep_files(search_string, search_path):
+    # Run the grep command with -n to include line numbers
+    result = subprocess.run(['grep', '-nr', search_string, search_path], stdout=subprocess.PIPE, text=True)
+
+    # Split the output by lines
+    lines = result.stdout.strip().split('\n')
+
+    # Initialize an empty dictionary to store the results
+    matches_dict = {}
+
+    # Process each line of the grep output
+    for line in lines:
+        if line:  # Make sure the line is not empty
+            # Split the line into filename, line number, and matched line
+            parts = line.split(':', 2)
+            if len(parts) == 3:
+                filename, line_number, matched_line = parts
+                # Check if the file is already in the dictionary
+                if filename not in matches_dict:
+                    # If the file is not in the dictionary, add a new entry
+                    matches_dict[filename] = []
+                # Append the new match to the file's list of matches
+                matches_dict[filename].append({'matchedLineNumber': int(line_number), 'matchedLine': matched_line})
+
+    # Convert the dictionary to the desired list format
+    matches_list = [{'matchedFileName': filename, 'matches': matches} for filename, matches in matches_dict.items()]
+
+    return matches_list
+
+
+def search_obsidian_notes_for_string(obsidian_path, search_string):
+    return search_obsidian_notes_for_string(obsidian_path, search_string)
 
 
 def get_random_obsidian_notes(obsidian_path, n):
